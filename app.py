@@ -1,61 +1,56 @@
-# Import necessary libraries
-import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import streamlit as st
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.datasets import load_iris
 
-# Load the Iris dataset
-iris = load_iris()
-X = iris.data  # Features (sepal length, sepal width, petal length, petal width)
-y = iris.target  # Target variable (species)
+# Create mock data for house price prediction
+np.random.seed(42)
 
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# Features: size (sqft), number of rooms, age of house (years)
+n_samples = 1000
+house_size = np.random.uniform(500, 4000, size=n_samples)  # House size in sqft
+num_rooms = np.random.randint(1, 10, size=n_samples)  # Number of rooms
+house_age = np.random.randint(1, 100, size=n_samples)  # Age of house in years
+
+# Target: House price (in $1000)
+house_price = (house_size * 0.1) + (num_rooms * 5000) - (house_age * 100) + np.random.normal(0, 50000, size=n_samples)
+
+# Stack features into one matrix
+X = np.column_stack((house_size, num_rooms, house_age))
+y = house_price
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Standardize the features
 scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-# Create a K-Nearest Neighbors classifier model
-model = KNeighborsClassifier(n_neighbors=3)
+# Create and train the model (Linear Regression)
+model = LinearRegression()
+model.fit(X_train_scaled, y_train)
 
-# Train the model
-model.fit(X_train, y_train)
+# Save the trained model
+def predict_price(house_size_input, num_rooms_input, house_age_input):
+    # Prepare input data
+    input_data = np.array([[house_size_input, num_rooms_input, house_age_input]])
+    input_data_scaled = scaler.transform(input_data)
+    prediction = model.predict(input_data_scaled)
+    return prediction[0]
 
-# Make predictions
-y_pred = model.predict(X_test)
+# Streamlit App
+st.title('House Price Prediction App')
 
-# Evaluate the model's performance
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
+st.header('Enter the house details to predict the price')
 
-# Optional: Visualize the decision boundary (for 2D features, you can reduce dimensions)
-# Here, we'll use only the first two features for simplicity
-X_train_2d = X_train[:, :2]
-X_test_2d = X_test[:, :2]
-model.fit(X_train_2d, y_train)
-y_pred_2d = model.predict(X_test_2d)
+# Create input fields for the user to enter data
+house_size_input = st.number_input('Enter house size (in sqft)', min_value=500, max_value=5000, value=1500)
+num_rooms_input = st.number_input('Enter number of rooms', min_value=1, max_value=10, value=3)
+house_age_input = st.number_input('Enter age of house (in years)', min_value=1, max_value=100, value=10)
 
-# Plotting decision boundary for 2D
-h = .02  # Step size in the mesh
-x_min, x_max = X_train_2d[:, 0].min() - 1, X_train_2d[:, 0].max() + 1
-y_min, y_max = X_train_2d[:, 1].min() - 1, X_train_2d[:, 1].max() + 1
-
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
-Z = Z.reshape(xx.shape)
-
-plt.contourf(xx, yy, Z, alpha=0.8)
-plt.scatter(X_train_2d[:, 0], X_train_2d[:, 1], c=y_train, edgecolors='k', marker='o', s=50)
-plt.scatter(X_test_2d[:, 0], X_test_2d[:, 1], c=y_pred_2d, edgecolors='r', marker='x', s=100)
-plt.title("K-Nearest Neighbors Classifier Decision Boundary (2D)")
-plt.xlabel("Sepal Length")
-plt.ylabel("Sepal Width")
-plt.show()
+# Button to predict price
+if st.button('Predict Price'):
+    predicted_price = predict_price(house_size_input, num_rooms_input, house_age_input)
+    st.write(f'The predicted house price is: ${predicted_price:,.2f}')
