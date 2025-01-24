@@ -1,5 +1,4 @@
 import time
-import random
 import streamlit as st
 import pandas as pd
 
@@ -150,6 +149,10 @@ def main():
 
                     ascending = st.radio("Sort Order", ["Ascending", "Descending"]) == "Ascending"
 
+                    # Create a copy of the array to avoid modifying the original array
+                    arr_copy = arr.copy()
+
+                    # Get the selected sorting algorithm function
                     algorithms = {
                         "Bubble Sort": bubble_sort,
                         "Insertion Sort": insertion_sort,
@@ -159,9 +162,9 @@ def main():
                         "Heap Sort": heap_sort,
                     }
 
-                    # Ensure the generator is recreated each time the algorithm changes
-                    generator = algorithms[algorithm](arr, ascending)
-                    visualize_sorting(generator, arr)
+                    # Create a new generator for the selected algorithm
+                    generator = algorithms[algorithm](arr_copy, ascending)
+                    visualize_sorting(generator, arr_copy)
 
             except ValueError:
                 st.error("Please enter valid integers separated by spaces.")
