@@ -117,7 +117,7 @@ def visualize_sorting(generator, arr):
 # Streamlit App
 def main():
     st.title("Sorting Algorithm Visualizer")
-    st.write("Lab 2 task by Dr. Urvashi Bansal")  # Title added here
+    st.write("Lab 2 task by Dr. Urvashi Ma'am")  # Title added here
 
     menu = ["Visualizer", "Exit"]
     choice = st.sidebar.selectbox("Menu", menu)
