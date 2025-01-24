@@ -1,6 +1,7 @@
 import time
 import random
 import streamlit as st
+import pandas as pd
 
 # Sorting Algorithms
 def bubble_sort(arr, ascending=True):
@@ -9,7 +10,7 @@ def bubble_sort(arr, ascending=True):
         for j in range(0, n - i - 1):
             if (arr[j] > arr[j + 1]) if ascending else (arr[j] < arr[j + 1]):
                 arr[j], arr[j + 1] = arr[j + 1], arr[j]
-                yield arr
+                yield arr, f"Bubble Sort: Swapping {arr[j + 1]} and {arr[j]}"
 
 def insertion_sort(arr, ascending=True):
     for i in range(1, len(arr)):
@@ -18,9 +19,9 @@ def insertion_sort(arr, ascending=True):
         while j >= 0 and ((arr[j] > key) if ascending else (arr[j] < key)):
             arr[j + 1] = arr[j]
             j -= 1
-            yield arr
+            yield arr, f"Insertion Sort: Moving {key} left"
         arr[j + 1] = key
-        yield arr
+        yield arr, f"Insertion Sort: Placing {key} in position"
 
 def selection_sort(arr, ascending=True):
     n = len(arr)
@@ -30,7 +31,7 @@ def selection_sort(arr, ascending=True):
             if (arr[j] < arr[idx]) if ascending else (arr[j] > arr[idx]):
                 idx = j
         arr[i], arr[idx] = arr[idx], arr[i]
-        yield arr
+        yield arr, f"Selection Sort: Swapping {arr[i]} with {arr[idx]}"
 
 def merge_sort(arr, ascending=True):
     if len(arr) > 1:
@@ -50,25 +51,25 @@ def merge_sort(arr, ascending=True):
                 arr[k] = right_half[j]
                 j += 1
             k += 1
-            yield arr
+            yield arr, f"Merge Sort: Merging {arr}"
 
         while i < len(left_half):
             arr[k] = left_half[i]
             i += 1
             k += 1
-            yield arr
+            yield arr, f"Merge Sort: Adding remaining {arr}"
 
         while j < len(right_half):
             arr[k] = right_half[j]
             j += 1
             k += 1
-            yield arr
+            yield arr, f"Merge Sort: Adding remaining {arr}"
 
 def quick_sort(arr, ascending=True):
     def quick_sort_helper(arr, low, high):
         if low < high:
             pivot_idx = partition(arr, low, high)
-            yield arr
+            yield arr, f"Quick Sort: Pivoting at index {pivot_idx}"
             yield from quick_sort_helper(arr, low, pivot_idx - 1)
             yield from quick_sort_helper(arr, pivot_idx + 1, high)
 
@@ -106,12 +107,16 @@ def heap_sort(arr, ascending=True):
     for i in range(n - 1, 0, -1):
         arr[i], arr[0] = arr[0], arr[i]
         heapify(arr, i, 0)
-        yield arr
+        yield arr, f"Heap Sort: Swapping {arr[i]} with root {arr[0]}"
 
 # Visualization
 def visualize_sorting(generator, arr):
-    for updated_arr in generator:
-        st.bar_chart(updated_arr)
+    for updated_arr, label in generator:
+        # Display sorting step
+        st.write(label)
+        
+        # Update visualization
+        st.bar_chart(pd.Series(updated_arr))
         time.sleep(0.2)  # Adjust speed of visualization
 
 # Streamlit App
