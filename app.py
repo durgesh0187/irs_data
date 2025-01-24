@@ -117,7 +117,7 @@ def visualize_sorting(generator, arr):
 # Streamlit App
 def main():
     st.title("Sorting Algorithm Visualizer")
-    st.write("Lab 2 task by Dr. Urvashi Ma'am")  # Title added here
+    st.write("Lab 2 task by Dr. Urvashi Bansal")
 
     menu = ["Visualizer", "Exit"]
     choice = st.sidebar.selectbox("Menu", menu)
@@ -154,6 +154,7 @@ def main():
                         "Heap Sort": heap_sort,
                     }
 
+                    # Ensure the generator is recreated each time the algorithm changes
                     generator = algorithms[algorithm](arr, ascending)
                     visualize_sorting(generator, arr)
 
